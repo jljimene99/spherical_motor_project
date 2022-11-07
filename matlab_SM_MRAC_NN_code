@@ -1,0 +1,360 @@
+clc;clear;
+% Load the data 
+load('30s_DataSet1_6_23_22_.mat');D1 = data;
+load('30s_DataSet2_6_23_22_.mat');D2 = data;
+load('30s_DataSet3_31_22_.mat');  D3 = data;
+load('30s_DataSet4_31_22_.mat');  D4 = data;
+load('30s_DataSet5_31_22_.mat');  D5 = data;
+load('30s_DataSet6_31_22_.mat');  D6 = data;
+load('30s_DataSet7_31_22_.mat');  D7 = data;
+load('30s_DataSet8_31_22_.mat');  D8 = data;
+load('PMSM1_DataSet9.mat');       D9 = data;
+load('siddarth_DataSet10.mat');   D10 = data;
+
+
+% Data set 1
+t = D1(:,1);               % Time
+y1 = D1(:,2:4);            % Output Euler angles
+r1 = D1(:,5:7);            % Reference Euler angles
+w1 = D1(:,8:10);           % Angular velocity (deg/s)
+u1= D1(:,11:19);           % Phase currents
+
+% Data set 2
+y2 = D2(:,2:4);            % Output Euler angles
+r2 = D2(:,5:7);            % Reference Euler angles
+w2 = D2(:,8:10);           % Angular velocity (deg/s)
+u2= D2(:,11:19);           % Phase currents
+
+% Data set 3
+y3 = D3(:,2:4);            % Output Euler angles
+r3 = D3(:,5:7);            % Reference Euler angles
+w3 = D3(:,8:10);           % Angular velocity (deg/s)
+u3= D3(:,11:19);           % Phase currents
+
+% Data set 4
+y4 = D4(:,2:4);            % Output Euler angles
+r4 = D4(:,5:7);            % Reference Euler angles
+w4 = D4(:,8:10);           % Angular velocity (deg/s)
+u4= D4(:,11:19);           % Phase currents
+
+% Data set 5
+y5 = D5(:,2:4);            % Output Euler angles
+r5 = D5(:,5:7);            % Reference Euler angles
+w5 = D5(:,8:10);           % Angular velocity (deg/s)
+u5= D5(:,11:19);           % Phase currents
+
+% Data set 6
+y6 = D6(:,2:4);            % Output Euler angles
+r6 = D6(:,5:7);            % Reference Euler angles
+w6 = D6(:,8:10);           % Angular velocity (deg/s)
+u6= D6(:,11:19);           % Phase currents
+
+% Data set 7
+y7 = D7(:,2:4);            % Output Euler angles
+r7 = D7(:,5:7);            % Reference Euler angles
+w7 = D7(:,8:10);           % Angular velocity (deg/s)
+u7= D7(:,11:19);           % Phase currents
+
+% Data set 8
+y8 = D8(:,2:4);            % Output Euler angles
+r8 = D8(:,5:7);            % Reference Euler angles
+w8 = D8(:,8:10);           % Angular velocity (deg/s)
+u8= D8(:,11:19);           % Phase currents
+%combine the data
+y = [y1; y2; y3; y4; y5; y6; y7]; % output
+u = [u1; u2; u3; u4; u5; u6; u7]; % input
+r = [r1; r2;r3;r4;r5;r6;r7];       % reference
+w = [w1; w2;w3;w4;w5;w6;w7];       % angular velocity
+
+% time array and simulink input
+len = (size(u,1)*(100/5001)) + 0.04; % if 30s of data are added
+time  = 0.0:0.02:len;
+u_input1 = [time' u];
+ref_signal =[time' r];
+simulation_time = time(end);
+
+%% Adding more data 
+
+% Data set 9
+y9 = D9(:,2:4);            % Output Euler angles
+r9 = D9(:,5:7);            % Reference Euler angles
+w9 = D9(:,8:10);           % Angular velocity (deg/s)
+u9= D9(:,11:19);           % Phase currents
+
+
+% Data set 10
+y10 = D10(:,2:4);            % Output Euler angles
+r10 = D10(:,5:7);            % Reference Euler angles
+w10 = D10(:,8:10);           % Angular velocity (deg/s)
+u10= D10(:,11:19);           % Phase currents
+
+%combine the data
+y = [y1; y2; y3; y4; y5; y6; y7; y8;y9;y10]; % output
+u = [u1; u2; u3; u4; u5; u6; u7;u8;u9;u10]; % input
+r = [r1; r2;r3;r4;r5;r6;r7;r8;r9;r10];       % reference
+w = [w1; w2;w3;w4;w5;w6;w7;w8;w9;w10];       % angular velocity
+
+% time array and simulink input
+len = (size(u,1)*(100/5001)) + 0.04; % if 30s of data are added
+time  = 0.0:0.02:len;
+u_input1 = [time' u];
+ref_signal =[time' r];
+
+%% plot the data collected
+% phase current plots
+figure(1) % CURRENTS 1,2,3
+subplot(3,1,1);  plot(time, u(:,1),'r-'); grid on;
+title('\fontsize{12}Phase Current: 1,2,3' )
+ylabel('\fontsize{12} i_{1}(t) (A)')
+legend('Phase Current 1')
+xlim([0 (len +5)])
+subplot(3,1,2); plot(time, u(:,2),'b-');grid on;
+ylabel('\fontsize{12} i_{2}(t) (A)')
+legend('Phase Current 2')
+xlim([0 (len +5)])
+subplot(3,1,3); plot(time, u(:,3),'k-');grid on;
+xlabel('\fontsize{12}t(s)')
+ylabel('\fontsize{12} i_{3}(t) (A)')
+legend('Phase Current 3')
+xlim([0 (len +5)])
+
+figure(2)  % CURRENTS 4,5,6
+subplot(3,1,1);  plot(time, u(:,4),'r-');grid on;
+title('\fontsize{12}Phase Current: 4,5,6' )
+ylabel('\fontsize{12} i_{4}(t) (A)')
+legend('Phase Current 4')
+xlim([0 (len +5)])
+
+subplot(3,1,2); plot(time, u(:,5),'b-');grid on;
+ylabel('\fontsize{12} i_{5}(t) (A)')
+legend('Phase Current 5')
+xlim([0 (len +5)])
+subplot(3,1,3); plot(time, u(:,6),'k-');grid on;
+xlabel('\fontsize{12}t(s)')
+ylabel('\fontsize{12} i_{6}(t) (A)')
+legend('Phase Current 6')
+xlim([0 (len +5)])
+
+figure(3) % CURRENTS 7,8,9
+subplot(3,1,1);  plot(time, u(:,7),'r-');grid on;
+title('\fontsize{12}Phase Current: 7,8,9' )
+ylabel('\fontsize{12} i_{7}(t) (A)')
+legend('Phase Current 7')
+xlim([0 (len +5)])
+subplot(3,1,2); plot(time,u(:,8),'b-');grid on;
+ylabel('\fontsize{12} i_{8}(t) (A)')
+legend('Phase Current 8')
+xlim([0 (len +5)])
+subplot(3,1,3); plot(time,u(:,9),'k-');grid on;
+xlabel('\fontsize{12}t(s)')
+ylabel('\fontsize{12} i_{9}(t) (A)')
+legend('Phase Current 9')
+xlim([0 (len +5)])
+
+% output euler and reference angles' plots
+figure(5)
+subplot(3,1,1);  grid on;
+plot(time,y(:,1),'r-',time, r(:,1),'r--');
+title('\fontsize{12}Reference vs Measured Euler angles')
+ylabel('\fontsize{12}\alpha(rad)')
+legend('Measured \fontsize{10}\alpha','Reference \fontsize{10}\alpha')
+xlim([0 (len +5)])
+
+subplot(3,1,2); grid on;
+plot(time,y(:,2),'b-',time, r(:,2),'b--');
+ylabel('\fontsize{12}\beta(rad)')
+legend('Measured \fontsize{10}\beta','Reference \fontsize{10}\beta')
+xlim([0 (len +5)])
+
+subplot(3,1,3); grid on;
+plot(time,y(:,3),'k-',time, r(:,3),'k--');
+xlabel('\fontsize{12}t(s)')
+ylabel('\fontsize{12}\beta(rad)')
+legend('Measured \fontsize{10}\gamma','Reference \fontsize{10}\gamma')
+xlim([0 (len +5)])
+
+%% Partition the data into training data |XTrain| and |TTrain|, and prediction |XPredict|.
+% use con2seq to rap around {}
+y = con2seq(y');    % Input data 
+u = con2seq(u');    % Target data
+
+% delays
+d1 = [1:3];
+d2 = [1:3];
+S1 = [20];
+
+% simple example: create and train a NARX Plant Model NN
+narx_net = narxnet(d1,d2,S1);
+ 
+net.divideFcn = 'dividerand'; %divideblock
+net.divideParam.trainRatio = 75/100;
+net.divideParam.valRatio   = 12.5/100;
+net.divideParam.testRatio  = 12.5/100;
+
+narx_net.trainParam.min_grad = 1e-10;
+narx_net.trainParam.epochs = 5000;
+[p,Pi,Ai,t] = preparets(narx_net,u,{},y);
+[narx_net, tr] = train(narx_net,p,t,Pi);
+narx_net_closed = closeloop(narx_net);
+narx_net_tr = tr;
+view(narx_net_closed)
+
+%% Save the narx network
+NARX_NN_3 = narx_net;
+NARX_NN_closed_3 = narx_net_closed;
+NARX_NN_3_tr = narx_net_tr;
+save('NARX_NN_3.mat','NARX_NN_3','NARX_NN_closed_3','NARX_NN_3_tr')
+plotperform(narx_net_tr)
+%% load the NN saved
+narx_net = NARX_NN_1;
+narx_net_closed = NARX_NN_closed_1;
+view(narx_net_closed)
+%% CREATE THE TOTAL MODEL REFERNCE ADAPTIVE CONTROL (MRAC)
+S2 = 25;
+% begin with a feedforward net then add the feedback connections
+mrac_net = feedforwardnet([S2 9 S1]);
+
+% connections of the NN [0 1 0 1] = 1st hidden layer connected with output
+mrac_net.layerConnect = [0 1 0 1; 1 0 0 0; 0 1 0 1; 0 0 1 0];
+
+mrac_net.outputs{4}.feedbackMode = 'closed';
+mrac_net.layers{2}.transferFcn = 'purelin';
+%mrac_net.layers{4}.transferFcn = 'purelin';
+
+%{3,4} hidden layer 3 and 4 input delays 
+mrac_net.layerWeights{3,4}.delays = 1:3;
+mrac_net.layerWeights{3,2}.delays = 1:3;
+
+% turn off learning in the plant model subnetwork since it has been trained
+mrac_net.layerWeights{3,2}.learn = 0;
+mrac_net.layerWeights{3,4}.learn = 0;
+mrac_net.layerWeights{4,3}.learn = 0;
+mrac_net.biases{3}.learn = 0;
+mrac_net.biases{4}.learn = 0;
+
+% turn off data division and pre-processing: not needed for this ex problem
+
+%mrac_net.divideFcn = '';
+mrac_net.divideFcn = 'dividerand';
+mrac_net.inputs{1}.processFcns = {'mapminmax'};
+mrac_net.outputs{4}.processFcns = {'mapminmax'};
+
+% set the delays needed for the controller(layer 1) and name the network
+mrac_net.name = 'Model Reference Adaptive Control Network';
+mrac_net.layerWeights{1,2}.delays = 1:3;
+mrac_net.layerWeights{1,4}.delays = 1:3;
+mrac_net.inputWeights{1,1}.delays = 1:3;
+
+%% Configure the model using the REFERENCE MODEL from simulink
+
+sim_time = time(end);
+time_step = 0.02;  
+% control signal
+refin1 = out.u_input;
+refin = con2seq(refin1');
+
+% output
+refout1 = out.ref_output;
+refout = con2seq(refout1');
+
+figure(4)
+subplot(2,1,1)
+plot(time,cell2mat(refin),'-b')
+title('u input')
+xlim([0 215])
+subplot(2,1,2)
+plot(time,cell2mat(refout),'-r')
+title('y output')
+xlim([0 215])
+
+mrac_net = configure(mrac_net,refin,refout);    % configuring the network
+view(mrac_net)
+
+%% insert the weights from the trained plant NN model into the appropriate
+% location of the MRAC system
+mrac_net.LW{3,2} = narx_net_closed.IW{1};
+
+mrac_net.LW{3,4} = narx_net_closed.LW{1,2};
+mrac_net.b{3} = narx_net_closed.b{1};
+mrac_net.LW{4,3} = narx_net_closed.LW{2,1};
+mrac_net.b{4} = narx_net_closed.b{2};
+
+% you can set the output weights of the controller NN to zero, which will
+% give the plant an initial input of zero
+mrac_net.LW{2,1} = zeros(size(mrac_net.LW{2,1}));
+mrac_net.b{2} = zeros(9,1);
+
+% you can associate any plots/training function that you desire to the NN.
+mrac_net.plotFcns = {'plotperform','plottrainstate',...
+ 'ploterrhist','plotregression','plotresponse'};
+mrac_net.trainFcn = 'trainlm';
+ 
+% the final MRCA network 
+view(mrac_net)
+
+% NOTE: layer 3 and 4 make up the plant model subNN
+%       layer 1 and 2 make up the controller 
+
+% you can now prepare the training data 
+[x_tot,xi_tot,ai_tot,t_tot] = preparets(mrac_net,refin,{},refout);
+mrac_net.trainParam.epochs = 5000; % 50 default
+mrac_net.trainParam.min_grad = 1e-10;
+
+% train the network
+[mrac_net,tr] = train(mrac_net,x_tot,t_tot,xi_tot,ai_tot);
+
+%% generate the Simunlink block for the trained NN
+gensim(mrac_net,0.02) 
+plotperf(tr)
+plotperform(tr)
+%%
+time10 = D10(:,1); 
+time_stop = time10(end);
+r_signal_10 = [time10 r10];
+
+%% PLOT THE MRAC OUTPUT COMING FROM SIMULINK
+y_ref = out.ref_output;
+y_mrac = out.mrac_output;
+y_mrac = y_mrac(1:end-1,:);
+
+figure;
+subplot(3,1,1)
+plot(time10,r10(:,1),'r-',time10,y_mrac(:,1),'b--');grid on;
+title('Test Set Rotor Orientation: Reference vs Estimated');
+ylabel('Rotation - X(rad)')
+legend('Reference \fontsize{10}\alpha','MRAC \fontsize{10}\alpha estimation')
+ylim([-3 3])
+subplot(3,1,2)
+plot(time10,r10(:,2),'r-',time10,y_mrac(:,2),'b--');grid on;
+ylabel('Rotation - Y (rad)')
+legend('Reference \fontsize{10}\beta','MRAC \fontsize{10}\beta estimation')
+ylim([-2 2])
+subplot(3,1,3)
+plot(time10,r10(:,3),'r-',time10,y_mrac(:,3),'b--');grid on;
+xlabel('t(s)')
+ylabel('Rotation - Z (rad)')
+legend('Reference \fontsize{10}\gamma','MRAC \fontsize{10}\gamma estimation')
+ylim([-4 4])
+
+% error plot
+e1 = r10(:,1) - y_mrac(:,1);
+e2 = r10(:,2) - y_mrac(:,2);
+e3 = r10(:,3) - y_mrac(:,3);
+
+figure(5)
+subplot(3,1,1)
+plot(time10,e1,'b-');grid on;
+grid on; title('Error: Reference vs Estimated');
+ylabel('Error: Rotation - X')
+legend('Error \fontsize{10}\alpha')
+
+subplot(3,1,2)
+plot(time10,e2,'b-');grid on;
+ylabel('Error: Rotation - Y')
+legend('Error \fontsize{10}\beta')
+
+subplot(3,1,3)
+plot(time10,e3,'b-');grid on;
+xlabel('t(s)'); 
+ylabel('Error: Rotation - Z')
+legend('Error \fontsize{10}\gamma')
