@@ -1,0 +1,673 @@
+%% FEEDFORWARD NEURAL NETWORK FOR SYSTEM IDENTIFICATION AND CONTROL %%
+
+clc;clear;
+% Load the data 
+load('30s_DataSet1_6_23_22_.mat');D1 = data;
+load('30s_DataSet2_6_23_22_.mat');D2 = data;
+load('30s_DataSet3_31_22_.mat');  D3 = data;
+load('30s_DataSet4_31_22_.mat');  D4 = data;
+load('30s_DataSet5_31_22_.mat');  D5 = data;
+load('30s_DataSet6_31_22_.mat');  D6 = data;
+load('30s_DataSet7_31_22_.mat');  D7 = data;
+load('30s_DataSet8_31_22_.mat');  D8 = data;
+load('PMSM1_DataSet9.mat');       D9 = data;
+load('siddarth_DataSet10.mat');   D10 = data;
+
+% Data set 1
+t = D1(:,1);               % Time
+y1 = D1(:,2:4);            % Output Euler angles
+r1 = D1(:,5:7);            % Reference Euler angles
+w1 = D1(:,8:10);           % Angular velocity (deg/s)
+u1= D1(:,11:19);           % Phase us
+yc1 = [y1, w1];
+
+% Data set 2
+y2 = D2(:,2:4);            % Output Euler angles
+r2 = D2(:,5:7);            % Reference Euler angles
+w2 = D2(:,8:10);           % Angular velocity (deg/s)
+u2= D2(:,11:19);           % Phase us
+yc2 = [y2, w2];
+
+% Data set 3
+y3 = D3(:,2:4);            % Output Euler angles
+r3 = D3(:,5:7);            % Reference Euler angles
+w3 = D3(:,8:10);           % Angular velocity (deg/s)
+u3= D3(:,11:19);           % Phase us
+yc3 = [y3, w3];
+
+% Data set 4
+y4 = D4(:,2:4);            % Output Euler angles
+r4 = D4(:,5:7);            % Reference Euler angles
+w4 = D4(:,8:10);           % Angular velocity (deg/s)
+u4= D4(:,11:19);           % Phase us
+yc4 = [y4, w4];
+
+% Data set 5
+y5 = D5(:,2:4);            % Output Euler angles
+r5 = D5(:,5:7);            % Reference Euler angles
+w5 = D5(:,8:10);           % Angular velocity (deg/s)
+u5= D5(:,11:19);           % Phase us
+yc5 = [y5, w5];
+
+% Data set 6
+y6 = D6(:,2:4);            % Output Euler angles
+r6 = D6(:,5:7);            % Reference Euler angles
+w6 = D6(:,8:10);           % Angular velocity (deg/s)
+u6= D6(:,11:19);           % Phase us
+yc6 = [y6, w6];
+
+% Data set 7
+y7 = D7(:,2:4);            % Output Euler angles
+r7 = D7(:,5:7);            % Reference Euler angles
+w7 = D7(:,8:10);           % Angular velocity (deg/s)
+u7= D7(:,11:19);           % Phase us
+yc7 = [y7, w7];
+
+% Data set 8
+y8 = D8(:,2:4);            % Output Euler angles
+r8 = D8(:,5:7);            % Reference Euler angles
+w8 = D8(:,8:10);           % Angular velocity (deg/s)
+u8= D8(:,11:19);           % Phase us
+yc8 = [y8, w8];
+%combine the data
+
+yc =[ yc1; yc2; yc3; yc4; yc5; yc6; yc7; yc8]; % euler and angluar velocity
+y = [y1; y2; y3; y4; y5; y6; y7; y8]; % output
+u = [u1; u2; u3; u4; u5; u6; u7; u8]; % input
+r = [r1; r2;r3;r4;r5;r6;r7;r8];       % reference
+w = [w1; w2;w3;w4;w5;w6;w7;w8];       % angular velocity
+
+% time array and simulink input
+len = (size(u,1)*(100/5001)) + 0.04; % if 30s of data are added
+time  = 0.0:0.02:len;
+u_input1 = [time' u];
+ref_signal =[time' r];
+
+% print the size of the data and the rate at which it was collected
+fprintf('The size of the data is:')
+size(y)
+fprintf('The sample rate of the data is:')
+mean(diff(time))
+
+%% ADDING MORE DATA 
+
+% Data set 9
+y9 = D9(:,2:4);            % Output Euler angles
+r9 = D9(:,5:7);            % Reference Euler angles
+w9 = D9(:,8:10);           % Angular velocity (deg/s)
+u9= D9(:,11:19);           % Phase us
+yc9 = [y9, w9];
+
+% Data set 10
+y10 = D10(:,2:4);            % Output Euler angles
+r10 = D10(:,5:7);            % Reference Euler angles
+w10 = D10(:,8:10);           % Angular velocity (deg/s)
+u10= D10(:,11:19);           % Phase us
+yc10 = [y10, w10];
+
+%combine the data
+yc =[ yc1; yc2; yc3; yc4; yc5; yc6; yc7; yc8;yc9;yc10]; % euler and angluar velocity
+y = [y1; y2; y3; y4; y5; y6; y7; y8;y9;y10]; % output
+u = [u1; u2; u3; u4; u5; u6; u7;u8;u9;u10]; % input
+r = [r1; r2;r3;r4;r5;r6;r7;r8;r9;r10];       % reference
+w = [w1; w2;w3;w4;w5;w6;w7;w8;w9;w10];       % angular velocity
+
+% time array and simulink input
+len = (size(u,1)*(100/5001)) + 0.04; % if 30s of data are added
+time  = 0.0:0.02:len;
+u_input1 = [time' u];
+ref_signal =[time' r];
+
+% print the size of the data and the rate at which it was collected
+fprintf('The size of the data is:')
+size(y)
+fprintf('The sample rate of the data is:')
+mean(diff(time))
+
+%% PERSONAL TIME DELAYS
+ysize = 3;
+
+% time delayed  output
+y_m1 = [zeros(1,ysize); y(1:end-1,:)];           % y(t-1)
+y_m2 = [zeros(2,ysize); y(1:end-2,:)];           % y(t-2)
+y_m3 = [zeros(3,ysize); y(1:end-3,:)];           % y(t-3)
+
+% Time delayed input 
+u_m1 = [zeros(1,9); u(1:end-1,:)];           % u(t-1)
+u_m2 = [zeros(2,9); u(1:end-2,:)];           % u(t-2
+u_m3 = [zeros(3,9); u(1:end-3,:)];           % u(t-3)
+
+% PLAN MODEL INPUT
+x_input= [y_m1, y_m2, y_m3, u_m1, u_m2, u_m3];
+
+% defining input and output for the NN
+input = x_input';
+output = y';
+
+%% INVERSE MODEL INPUT
+x_input_inv = [y_m2, y_m1, y, u_m1, u_m2, u_m3];
+
+input = x_input_inv';
+output = u';
+
+%% BOOK DELAYS
+yc =y;
+
+% Time delayed  output
+y_m1 =  y(2:end-1,:);                % y(t-1)
+y_m2 = y(1:end-2,:);                 % y(t)
+
+% Time delayed input 
+u_m1 = [zeros(1,9); u(3:end-1,:)];   % u(t-1)
+u_m2 = [zeros(2,9); u(3:end-2,:)];   % u(t-2
+
+u_m3 = [zeros(3,1); u(1:end-3,:)];  % u(t-3)
+
+% INVERSE MODEL INPUT
+x_inputs_inv_1 = [y_m1,y_m2, u_m1, u_m2];    % case 1
+x_inputs_inv_2 = [y, u];    % case 2
+      
+% defining input and output for the NN
+input = x_inputs_inv_1';
+output = u(3:end,:)';
+
+%% DUPLICATE THE DATA WITH OUTPUT IN ONE STEP IN THE FUTURE: y(t+1)
+input = []; output =[];
+for j = 1:10 
+    % output is estimated one step in the future
+    input = [input; x_input(1:end-1,:)];
+    output = [output; y_outputs(2:end,:)]; 
+end
+input = input';
+output = output';
+
+%% DUPLICATE THE DATA:
+input = []; output =[];
+for j = 1:2 
+    % output is estimated one step in the future
+    input = [input; x_input];
+    output = [output; y]; 
+end
+input = input';
+output = output';
+
+
+%% PLOT THE DATA COLLECTED
+
+% phase u plots
+figure(1) % uS 1,2,3
+subplot(3,1,1);  plot(time, u(:,1),'r-'); grid on;
+title('\fontsize{12}Phase u: 1,2,3' )
+ylabel('\fontsize{12} i_{1}(t) (A)')
+legend('Phase u 1')
+xlim([0 (len +2)])
+subplot(3,1,2); plot(time, u(:,2),'b-');grid on;
+ylabel('\fontsize{12} i_{2}(t) (A)')
+legend('Phase u 2')
+xlim([0 (len +2)])
+subplot(3,1,3); plot(time, u(:,3),'k-');grid on;
+xlabel('\fontsize{12}t(s)')
+ylabel('\fontsize{12} i_{3}(t) (A)')
+legend('Phase u 3')
+xlim([0 (len +2)])
+
+figure(2)  % uS 4,5,6
+subplot(3,1,1);  plot(time, u(:,4),'r-');grid on;
+title('\fontsize{12}Phase u: 4,5,6' )
+ylabel('\fontsize{12} i_{4}(t) (A)')
+legend('Phase u 4')
+xlim([0 (len +2)])
+
+subplot(3,1,2); plot(time, u(:,5),'b-');grid on;
+ylabel('\fontsize{12} i_{5}(t) (A)')
+legend('Phase u 5')
+xlim([0 (len +2)])
+subplot(3,1,3); plot(time, u(:,6),'k-');grid on;
+xlabel('\fontsize{12}t(s)')
+ylabel('\fontsize{12} i_{6}(t) (A)')
+legend('Phase u 6')
+xlim([0 (len +2)])
+
+figure(3) % uS 7,8,9
+subplot(3,1,1);  plot(time, u(:,7),'r-');grid on;
+title('\fontsize{12}Phase u: 7,8,9' )
+ylabel('\fontsize{12} i_{7}(t) (A)')
+legend('Phase u 7')
+xlim([0 (len +2)])
+subplot(3,1,2); plot(time,u(:,8),'b-');grid on;
+ylabel('\fontsize{12} i_{8}(t) (A)')
+legend('Phase u 8')
+xlim([0 (len +2)])
+subplot(3,1,3); plot(time,u(:,9),'k-');grid on;
+xlabel('\fontsize{12}t(s)')
+ylabel('\fontsize{12} i_{9}(t) (A)')
+legend('Phase u 9')
+xlim([0 (len +2)])
+
+% output euler and reference angles' plots
+figure(5)
+subplot(3,1,1);  grid on;
+plot(time,y(:,1),'r-',time, r(:,1),'r--');
+title('\fontsize{12}Reference vs Measured Euler angles')
+ylabel('\fontsize{12}\alpha(rad)')
+legend('Measured \fontsize{10}\alpha','Reference \fontsize{10}\alpha')
+xlim([0 (len +2)])
+
+subplot(3,1,2); grid on;
+plot(time,y(:,2),'b-',time, r(:,2),'b--');
+ylabel('\fontsize{12}\beta(rad)')
+legend('Measured \fontsize{10}\beta','Reference \fontsize{10}\beta')
+xlim([0 (len +2)])
+
+subplot(3,1,3); grid on;
+plot(time,y(:,3),'k-',time, r(:,3),'k--');
+xlabel('\fontsize{12}t(s)')
+ylabel('\fontsize{12}\beta(rad)')
+legend('Measured \fontsize{10}\gamma','Reference \fontsize{10}\gamma')
+xlim([0 (len +2)])
+
+%% OPTIMIZE THE NUMBER OF NEURONS IN THE HIDDEN LAYER 
+start = 25;   
+finish = 40;
+hidden_neuron_range = start:finish;
+offset = size(1:finish)-size(hidden_neuron_range);
+offset  = offset(2);
+
+N = [14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30];
+NN = cell(length(N),1);        NN_tr = cell(length(N),1);
+
+MSE = zeros(length(N),1);      RMSE = zeros(length(N),1);
+MSE_n = zeros(length(N),1);    RMSE_n = zeros(length(N),1);
+MSEtest = zeros(length(N),1);  RMSEtest = zeros(length(N),1);
+MSEtrain = zeros(length(N),1); RMSEtrain = zeros(length(N),1);
+MSEvalid = zeros(length(N),1); RMSEvalid = zeros(length(N),1);
+
+for i=start:finish
+    hiddenLayerSize =[i i i];    
+    net = feedforwardnet(hiddenLayerSize); 
+    net.layers{1}.transferFcn = 'tansig';  %logsig
+    net.layers{2}.transferFcn = 'radbas';
+    net.layers{3}.transferFcn = 'poslin';   % Relu transfer function
+      
+    % dividing the data
+    net.divideParam.trainRatio = 80/100;
+    net.divideParam.valRatio   = 10/100;
+    net.divideParam.testRatio  = 10/100;
+    
+    % training the ANN
+    [net, tr] = train(net, input,output,'useParallel','yes','showResources','yes'); 
+    
+    % storing the trained NN
+     NN{i} = net;
+     NN_tr{i} = tr;
+     
+     % storing the MSE of the NNs with the SM data
+     y1 = net(x_input','useParallel','yes');
+     y1 = y1';
+     perf = mse(net,u,y1);
+     %perf = mse(net,y,y1);
+     MSE(i) = perf;
+     RMSE(i) = sqrt(MSE(i));
+     
+% STORE THE MSE ERROR OF THE ANN
+
+    % RMSE FOR TRAINING SET 
+    y_Train = net(input(:,tr.trainInd)); % estimated output (random index)
+    y_TrainTrue = output(:,tr.trainInd); % original output
+    y_Train = y_Train';
+    y_TrainTrue = y_TrainTrue';
+    % reshaping the matrices
+    R_yTrain = reshape(y_Train,[],1);
+    R_yTrainTrue = reshape(y_TrainTrue,[],1);
+    
+    MSEtrain(i) = mean((R_yTrain - R_yTrainTrue).^2);   %MSE FOR TRAINING
+    RMSEtrain(i) = sqrt(MSEtrain(i));                   %RMSE FOR TRAINING
+    
+    % MSE FOR TEST SET 
+    y_Test = net(input(:,tr.testInd));
+    y_TestTrue = output(:,tr.testInd);
+    y_Test = y_Test';
+    y_TestTrue = y_TestTrue';
+    
+    % reshaping the matrices
+    R_yTest = reshape(y_Test,[],1);
+    R_yTestTrue = reshape(y_TestTrue,[],1);
+
+    MSEtest(i) = mean((R_yTest - R_yTestTrue).^2);     %MSE FOR TEST SET
+    RMSEtest(i) = sqrt(MSEtest(i));                    %RMSE FOR TEST SET  
+
+    % MSE  FOR VALIDATION SET
+    y_Val = net(input(:,tr.valInd));
+    y_ValTrue = output(:,tr.valInd);
+    y_Val = y_Val';
+    y_ValTrue = y_ValTrue';
+    % reshaping the matrices
+    R_yVal = reshape(y_Val,[],1);
+    R_yValTrue = reshape(y_ValTrue,[],1);
+
+    MSEvalid(i) = mean((R_yVal - R_yValTrue).^2);      %MSE FOR VALIDATION
+    RMSEvalid(i) = sqrt(MSEvalid(i));                  %RMSE FOR VALIDATION  
+
+    data_s = [MSE, MSEtrain, MSEvalid, MSEtest, RMSE, RMSEtest, RMSEtrain, RMSEvalid];
+    
+end
+%% FIND THE OPTIMAL HIDDEN NEURON FOR THE TRAIN, VALID, AND TEST
+clc;
+[minMSEtrain, ind1] = (min(MSEtrain(hidden_neuron_range)));
+[minMSEvalid, ind2] = (min(MSEvalid(hidden_neuron_range)));
+[minMSEtest, ind3] = (min(MSEtest(hidden_neuron_range)));
+
+opt_N_train = ind1 + offset
+opt_N_valid = ind2 + offset
+opt_N_test = ind3 + offset
+
+%% SAVE THE TRAINED NN
+for k = 25:40
+   % create the file 
+   varName = sprintf('NN_%i',k);
+   varName_tr = sprintf('NN_%i_tr',k);
+   NN{k} = NN{k}; 
+   NN_tr{k} = NN_tr{k};
+   
+   eval(sprintf('%s = NN{%i}', varName,k));
+   eval(sprintf('%s = NN_tr{%i}', varName_tr, k));
+   save(sprintf('%s.mat', varName), varName, varName_tr);
+
+end 
+
+%% PLOT THE TRAIN AND VALIDATION RMSE 
+figure;
+iter = 1:finish;
+grid on; grid minor; hold on;
+plot(iter,MSEtrain,'b.-');
+plot(iter,MSEvalid,'g.-');
+plot(iter,MSEtest,'r.-')
+%plot(iter,MSE,'k.-'); 
+hold off;
+title('Mean Square Error')
+xlabel('Number of Hidden Neurons')
+ylabel('MSE')
+legend('Train MSE','Validation MSE','Test MSE', 'Data MSE ') 
+xlim([start-1 finish+1])
+
+figure;
+iter = 1:finish;
+grid on; grid minor; hold on; 
+plot(iter,RMSEtrain,'b.-');
+plot(iter,RMSEvalid,'g.-');  
+plot(iter,RMSEtest,'r.-')
+%plot(iter,RMSE,'k.-'); 
+hold off;
+title('Root Mean Square Error')
+xlabel('Number of Hidden Neurons')
+ylabel('RMSE')
+legend('Train RMSE','Validation RMSE','Test RMSE','Data RMSE')
+xlim([start-1 finish+1])
+
+%% TEST OPTIMAL PLANT NN OUTPUT WITH TEST DATA SET
+
+time =D10(:,1);     % time array for the test set
+                                          
+% time delayed  output
+y_m1 = [zeros(1,3); y10(1:end-1,:)];        % y(t)
+y_m2 = [zeros(2,3); y10(1:end-2,:)];        % y(t-1)
+y_m3 = [zeros(3,3); y10(1:end-3,:)];        % y(t-2)
+
+% time delayed input 
+u_m1 = [zeros(1,9); u10(1:end-1,:)];        % u(t-1)
+u_m2 = [zeros(2,9); u10(1:end-2,:)];        % u(t-2)
+u_m3 = [zeros(3,9); u10(1:end-3,:)];        % u(t-3)
+
+% INVERSE MODEL INPUT
+x_input_test= [y_m1, y_m2, y_m3, u_m1, u_m2, u_m3];
+
+net = NN_27;
+y_nn = net(x_input_test','useParallel','yes');
+y_nn = y_nn';  
+
+figure;
+subplot(3,1,1)
+plot(time,y10(:,1),'r-',time,y_nn(:,1),'b--');grid on;
+title('Test Set Rotor Orientation: Measured vs Estimated');
+ylabel('Rotation - X(rad)')
+legend('Measured \fontsize{10}\alpha','NN \fontsize{10}\alpha estimation')
+ylim([-3 3])
+subplot(3,1,2)
+plot(time,y10(:,2),'r-',time,y_nn(:,2),'b--');grid on;
+ylabel('Rotation - Y (rad)')
+legend('Measured \fontsize{10}\beta','NN \fontsize{10}\beta estimation')
+ylim([-2 2])
+subplot(3,1,3)
+plot(time,y10(:,3),'r-',time,y_nn(:,3),'b--');grid on;
+xlabel('t(s)')
+ylabel('Rotation - Z (rad)')
+legend('Measured \fontsize{10}\gamma','NN \fontsize{10}\gamma estimation')
+ylim([-4 4])
+
+% error plot
+e1 = y10(:,1) - y_nn(:,1);
+e2 = y10(:,2) - y_nn(:,2);
+e3 = y10(:,3) - y_nn(:,3);
+
+figure(5)
+subplot(3,1,1)
+plot(time,e1,'b-');grid on;
+grid on; title('Error: Measured vs Estimated');
+ylabel('Error: Rotation - X')
+legend('Error \fontsize{10}\alpha')
+
+subplot(3,1,2)
+plot(time,e2,'b-');grid on;
+ylabel('Error: Rotation - Y')
+legend('Error \fontsize{10}\beta')
+
+subplot(3,1,3)
+plot(time,e3,'b-');grid on;
+xlabel('t(s)'); 
+ylabel('Error: Rotation - Z')
+legend('Error \fontsize{10}\gamma')
+
+%% GENERATE THE SIMULINK BLOCK FOR THE TRAINED NN 
+net = NN_27;
+tr = NN_27_tr;
+%gensim(net,0.02)
+plotperf(tr)
+plotperform(tr)
+
+%% TEST OPTIMAL INVERSE NN OUTPUT WITH TEST DATA SET
+
+% time delayed  output
+y_m1 = [zeros(1,3); y10(1:end-1,:)];        % y(t)
+y_m2 = [zeros(2,3); y10(1:end-2,:)];        % y(t-1)
+
+% time delayed input 
+u_m1 = [zeros(1,9); u10(1:end-1,:)];        % u(t-1)
+u_m2 = [zeros(2,9); u10(1:end-2,:)];        % u(t-2)
+u_m3 = [zeros(3,9); u10(1:end-3,:)];        % u(t-3)
+
+
+x_input_inv = [y_m2, y_m1, y10, u_m1, u_m2, u_m3];
+
+net = NN_34;
+tr = NN_34_tr;
+y1 = net(x_input_inv','useParallel','yes');
+y1 = y1';                         % NN estimated output
+time =D10(:,1);                   % time array for the test set
+error = y1-u10;                     % returns the difference error
+view(net)
+
+% returns the highest error and location
+[max_error_Val, indx]= max(abs(error)); 
+ 
+% PHASE u PLOTS
+figure(6) % current 1,2,3
+subplot(3,1,1);plot(time, u10(:,1),'r-',time, y1(:,1),'b--'); grid on;
+title('\fontsize{12}Phase Current: 1' )
+ylabel('\fontsize{12} i_{1}(t) (A)')
+legend('Measured u','NN u')
+ylim([-1.5 1.5])
+xlim([0 20])
+subplot(3,1,2); plot(time, u10(:,2),'r-',time, y1(:,2),'b--');grid on;
+title('\fontsize{12}Phase Current: 2' )
+ylabel('\fontsize{12} i_{2}(t) (A)')
+legend('Measured u','NN u')
+ylim([-1.5 1.5])
+xlim([0 20])
+subplot(3,1,3); plot(time, u10(:,3),'r-',time, y1(:,3),'b--');grid on;
+title('\fontsize{12}Phase Current: 3' )
+xlabel('\fontsize{12}t(s)')
+ylabel('\fontsize{12} i_{3}(t) (A)')
+legend('Measured u','NN u')
+ylim([-1.5 1.5])
+xlim([0 20])
+
+figure(7)  % currents 4,5,6
+subplot(3,1,1); plot(time, u10(:,4),'r-',time, y1(:,4),'b--');grid on;
+title('\fontsize{12}Phase Current: 4' )
+ylabel('\fontsize{12} i_{4}(t) (A)')
+legend('Measured u','NN u')
+%ylim([-2.5 2])
+xlim([0 20])
+subplot(3,1,2); plot(time, u10(:,5),'r-',time, y1(:,5),'b--');grid on;
+title('\fontsize{12}Phase Current: 5' )
+ylabel('\fontsize{12} i_{5}(t) (A)')
+legend('Measured u','NN u')
+xlim([0 20])
+subplot(3,1,3); plot(time, u10(:,6),'r-',time, y1(:,6),'b--');grid on;
+title('\fontsize{12}Phase Current: 6' )
+xlabel('\fontsize{12}t(s)')
+ylabel('\fontsize{12} i_{6}(t) (A)')
+legend('Measured u','NN u')
+
+xlim([0 20])
+figure(8);  % currents 7,8,9
+subplot(3,1,1); plot(time, u10(:,7),'r-',time, y1(:,7),'b--');grid on;
+title('\fontsize{12}Phase Current: 7' )
+ylabel('\fontsize{12} i_{7}(t) (A)')
+legend('Measured u','NN u')
+xlim([0 20])
+subplot(3,1,2); plot(time,u10(:,8),'r-',time, y1(:,8),'b--');grid on;
+title('\fontsize{12}Phase Current: 8' )
+ylabel('\fontsize{12} i_{8}(t) (A)')
+legend('Measured u','NN u')
+xlim([0 20])
+subplot(3,1,3); plot(time,u10(:,9),'r-',time, y1(:,9),'b--');grid on;
+title('\fontsize{12}Phase Current: 9' )
+xlabel('\fontsize{12}t(s)')
+ylabel('\fontsize{12} i_{9}(t) (A)')
+legend('Measured u','NN u')
+xlim([0 20])
+
+% error plot:PHASE u 1,2,3
+e1 = u10(:,1) - y1(:,1);
+e2 = u10(:,2) - y1(:,2);
+e3 = u10(:,3) - y1(:,3);
+
+figure(9)
+subplot(3,1,1)
+plot(time,e1,'b-');grid on;
+title('\fontsize{11}Error: Phase Current: 1' );
+ylabel('\fontsize{12} Error')
+legend('Error: e_{1}(A)')
+
+xlim([0 20])
+subplot(3,1,2)
+plot(time,e2,'b-');grid on;
+title('\fontsize{11}Error: Phase Current: 2' );
+ylabel('\fontsize{12} Error')
+legend('Error: e_{2}(A)')
+
+xlim([0 20])
+subplot(3,1,3)
+plot(time,e3,'b-');grid on;
+xlabel('\fontsize{12}t(s)'); 
+title('\fontsize{11}Error: Phase u: 3' );
+ylabel('\fontsize{12} Error')
+legend('Error: e_{3}(A)')
+
+xlim([0 20])
+
+% error plot: PHASE u 4,5,6
+e4 = u10(:,4) - y1(:,4);
+e5 = u10(:,5) - y1(:,5);
+e6 = u10(:,6) - y1(:,6);
+
+figure(10); subplot(3,1,1);
+plot(time,e4,'b-');grid on;
+title('\fontsize{11}Error: Phase Current: 4' );
+ylabel('\fontsize{12} Error')
+legend('Error: e_{4}(A)')
+%ylim([-3 3])
+xlim([0 20])
+subplot(3,1,2)
+plot(time,e5,'b-');grid on;
+title('\fontsize{11}Error: Phase Current: 5' );
+ylabel('\fontsize{12} Error')
+legend('Error: e_{5}(A)')
+
+xlim([0 20])
+subplot(3,1,3)
+plot(time,e6,'b-');grid on;
+xlabel('\fontsize{12}t(s)'); 
+title('\fontsize{11}Error: Phase Current: 6' );
+ylabel('\fontsize{12} Error')
+legend('Error: e_{6}(A)')
+
+xlim([0 20])
+% error plot:PHASE u 7,8,9
+e7 = u10(:,7) - y1(:,7);
+e8 = u10(:,8) - y1(:,8);
+e9 = u10(:,9) - y1(:,9);
+
+figure(11); subplot(3,1,1);
+plot(time,e7,'b-');grid on;
+grid on; title('Error: Measured vs Estimated');
+title('\fontsize{11}Error: Phase Current: 7' );
+ylabel('\fontsize{12} Error')
+legend('Error: e_{7}(A)')
+xlim([0 20])
+subplot(3,1,2)
+plot(time,e8,'b-');grid on;
+title('\fontsize{11}Error: Phase Current: 8' );
+ylabel('\fontsize{12} Error')
+legend('Error: e_{8}(A)')
+xlim([0 20])
+subplot(3,1,3)
+plot(time,e9,'b-');grid on;
+xlabel('\fontsize{12} t(s)'); 
+title('\fontsize{11}Error: Phase Current: 9' );
+ylabel('\fontsize{12} Error')
+legend('Error;  e_{9}(A)')
+
+xlim([0 20])
+
+%% GENERATE THE SIMULINK BLOCK FOR THE TRAINED INVERSE NN 
+net = NN_34;
+tr = NN_34_tr;
+%gensim(net,0.02)
+%plotperf(tr)
+plotperform(tr)
+
+% PLOT REGRESSION FOR TRAINING SET 
+y_Train = net(input(:,tr.trainInd)); % estimated output (random index)
+y_TrainTrue = output(:,tr.trainInd); % original output
+y_Train = y_Train';
+y_TrainTrue = y_TrainTrue';
+figure;
+plotregression(y_TrainTrue, y_Train, 'Training:')
+
+% PLOT REGRESSION FOR VALIDATION SET
+y_Val = net(input(:,tr.valInd));
+y_ValTrue = output(:,tr.valInd);
+y_Val = y_Val';
+y_ValTrue = y_ValTrue';
+figure;
+plotregression(y_ValTrue, y_Val, 'Validation')
+
+% PLOT REGRESSION FOR TEST SET 
+y_Test = net(input(:,tr.testInd));
+y_TestTrue = output(:,tr.testInd);
+y_Test = y_Test';
+y_TestTrue = y_TestTrue';
+figure;
+plotregression(y_TestTrue, y_Test,'Test')
